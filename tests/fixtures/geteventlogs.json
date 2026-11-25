@@ -1,0 +1,87 @@
+{
+  "draw": 1,
+  "recordsTotal": 23,
+  "recordsFiltered": 23,
+  "data": [
+    {
+      "eventHistoryTypeCode": "Logs_Search_Bid",
+      "eventHistorySubTypeCode": "Logs_Search_NewBid",
+      "registerDate": "2026-07-28T21:19:31.4447569Z",
+      "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su \u00faltimo lance para la subasta actual. La licitaci\u00f3n tiene que ser inferior al \u00faltimo lance m\u00e1s la diferencia m\u00ednima total (7.813.974,32 COP)",
+      "ipAddress": "203.0.113.10",
+      "userCode": "900000000"
+    },
+    {
+      "eventHistoryTypeCode": "Logs_Search_Bid",
+      "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+      "registerDate": "2026-07-28T21:19:31.3257602Z",
+      "description": "Comenzar Lances",
+      "ipAddress": "203.0.113.10",
+      "userCode": "900000000"
+    },
+    {
+      "eventHistoryTypeCode": "Logs_Search_Bid",
+      "eventHistorySubTypeCode": "Logs_Search_NewBid",
+      "registerDate": "2026-07-28T21:16:40.415597Z",
+      "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su \u00faltimo lance para la subasta actual. La licitaci\u00f3n tiene que ser inferior al \u00faltimo lance m\u00e1s la diferencia m\u00ednima total (7.813.974,32 COP)",
+      "ipAddress": "203.0.113.10",
+      "userCode": "900000000"
+    },
+    {
+      "eventHistoryTypeCode": "Logs_Search_Bid",
+      "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+      "registerDate": "2026-07-28T21:16:40.1328905Z",
+      "description": "Comenzar Lances",
+      "ipAddress": "203.0.113.10",
+      "userCode": "900000000"
+    },
+    {
+      "eventHistoryTypeCode": "Logs_Search_Conversation",
+      "eventHistorySubTypeCode": "Logs_Search_MessengerLogout",
+      "registerDate": "2026-07-28T21:15:24.3707892Z",
+      "description": "Usuario desconectado",
+      "ipAddress": "203.0.113.11",
+      "userCode": "900000000"
+    },
+    {
+      "eventHistoryTypeCode": "Logs_Search_Bid",
+      "eventHistorySubTypeCode": "Logs_Search_NewBid",
+      "registerDate": "2026-07-28T21:13:42.5687721Z",
+      "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su \u00faltimo lance para la subasta actual. La licitaci\u00f3n tiene que ser inferior al \u00faltimo lance m\u00e1s la diferencia m\u00ednima total (7.813.974,32 COP)",
+      "ipAddress": "203.0.113.10",
+      "userCode": "900000000"
+    },
+    {
+      "eventHistoryTypeCode": "Logs_Search_Bid",
+      "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+      "registerDate": "2026-07-28T21:13:41.8588406Z",
+      "description": "Comenzar Lances",
+      "ipAddress": "203.0.113.10",
+      "userCode": "900000000"
+    },
+    {
+      "eventHistoryTypeCode": "Logs_Search_Conversation",
+      "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+      "registerDate": "2026-07-28T21:12:56.2530303Z",
+      "description": "Usuario conectado",
+      "ipAddress": "203.0.113.10",
+      "userCode": "900000000"
+    },
+    {
+      "eventHistoryTypeCode": "Logs_Search_Conversation",
+      "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+      "registerDate": "2026-07-28T21:11:24.2927807Z",
+      "description": "Usuario conectado",
+      "ipAddress": "203.0.113.11",
+      "userCode": "900000000"
+    },
+    {
+      "eventHistoryTypeCode": "Logs_Search_Bid",
+      "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+      "registerDate": "2026-07-28T21:08:20.3064764Z",
+      "description": "Comenzar Lances",
+      "ipAddress": "203.0.113.10",
+      "userCode": "900000000"
+    }
+  ]
+}

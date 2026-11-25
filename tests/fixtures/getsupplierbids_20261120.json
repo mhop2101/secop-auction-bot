@@ -1,0 +1,120 @@
+[
+ {
+  "internalId": "730d8416-15fa-46f3-8af0-1713fe9a97b7",
+  "auctionId": "730d8416-15fa-46f3-8af0-1713fe9a97b7",
+  "company": "900000002",
+  "date": "2026-11-20T21:00:00.0443673Z",
+  "totalScore": 0.0,
+  "priceListScore": 0.0,
+  "totalValue": 0.0,
+  "totalSumUnitPrice": 0.0,
+  "auctionTotalBids": 1,
+  "supplierTotalBids": 0,
+  "bidId": 1,
+  "totalValueStr": "0.000000000000",
+  "totalSumUnitPriceStr": "0.00",
+  "currentRankingPosition": 2,
+  "isValid": true,
+  "errorMessage": "",
+  "lots": [
+   {
+    "internalId": "CO1.OTLN.77375650",
+    "totalScore": 0.0,
+    "priceListScore": 0.0,
+    "totalValue": 0.0,
+    "totalSumUnitPrice": 0.0,
+    "lotTotalBids": 1,
+    "supplierTotalBids": 0,
+    "totalValueStr": "0.00",
+    "totalSumUnitPriceStr": "0.00",
+    "items": [
+     {
+      "itemId": "b71cb95f-d25e-4f63-a613-04ee37808fe8",
+      "isPriceListItem": true,
+      "value": 0.0,
+      "quantity": 1.0,
+      "itemInitialPrice": 85044402.0,
+      "score": 0.0,
+      "currentRankingPosition": 0,
+      "supplierTotalBids": 0,
+      "valueStr": "0.000000",
+      "quantityStr": "1.000000",
+      "itemInitialPriceStr": "85044402.000000000000",
+      "lotInternalId": "CO1.OTLN.77375650",
+      "itemRanking": [
+       {
+        "isMyOwnCompany": false,
+        "companyCode": "900000002",
+        "position": 1,
+        "value": 0.0,
+        "score": 0.0,
+        "sumUnitPrice": 0.0,
+        "supplierTotalBids": 1,
+        "valueStr": "0.000000",
+        "sumUnitPriceStr": "0.000000"
+       }
+      ]
+     }
+    ],
+    "lotRanking": [
+     {
+      "isMyOwnCompany": false,
+      "companyCode": "900000002",
+      "position": 1,
+      "value": 0.0,
+      "score": 0.0,
+      "sumUnitPrice": 0.0,
+      "supplierTotalBids": 0,
+      "valueStr": "0.000000",
+      "sumUnitPriceStr": "0.000000"
+     }
+    ]
+   }
+  ],
+  "items": [
+   {
+    "itemId": "b71cb95f-d25e-4f63-a613-04ee37808fe8",
+    "isPriceListItem": true,
+    "value": 0.0,
+    "quantity": 1.0,
+    "itemInitialPrice": 85044402.0,
+    "score": 0.0,
+    "currentRankingPosition": 0,
+    "supplierTotalBids": 0,
+    "valueStr": "0.000000",
+    "quantityStr": "1.000000",
+    "itemInitialPriceStr": "85044402.000000000000",
+    "lotInternalId": "CO1.OTLN.77375650",
+    "itemRanking": [
+     {
+      "isMyOwnCompany": false,
+      "companyCode": "900000002",
+      "position": 1,
+      "value": 0.0,
+      "score": 0.0,
+      "sumUnitPrice": 0.0,
+      "supplierTotalBids": 1,
+      "valueStr": "0.000000",
+      "sumUnitPriceStr": "0.000000"
+     }
+    ]
+   }
+  ],
+  "globalRanking": [
+   {
+    "isMyOwnCompany": false,
+    "companyCode": "900000002",
+    "position": 1,
+    "value": 0.0,
+    "score": 0.0,
+    "sumUnitPrice": 0.0,
+    "supplierTotalBids": 1,
+    "valueStr": "0.000000",
+    "sumUnitPriceStr": "0.000000"
+   }
+  ],
+  "errorMessageLocale": null,
+  "minBid": null,
+  "errorType": null
+ }
+]

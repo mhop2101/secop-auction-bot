@@ -1,0 +1,503 @@
+{
+ "draw": 1,
+ "recordsTotal": 61,
+ "recordsFiltered": 62,
+ "data": [
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+   "registerDate": "2026-11-20T21:02:58.6205891Z",
+   "description": "Usuario conectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+   "registerDate": "2026-11-20T21:02:56.3512053Z",
+   "description": "Usuario conectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+   "registerDate": "2026-11-20T21:01:48.149204Z",
+   "description": "Usuario conectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:36.7679455Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:35.8005984Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:35.2778479Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:31.7969796Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:27.2735186Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:26.1954577Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:24.9380392Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:24.6213487Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:24.4900709Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:24.422018Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:24.1936112Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:24.1673766Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:24.0291135Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:22.9719682Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:22.7737164Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:22.4385689Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:21.4837042Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:21.2351452Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:19.2216768Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T21:00:18.367103Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:17.9002149Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:17.3846575Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T21:00:16.9576541Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:16.3966565Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:16.2816562Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:15.9436566Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_NewBid",
+   "registerDate": "2026-11-20T21:00:11.577112Z",
+   "description": "Error cuando presentado el lance. Problema: El valor total tiene que ser inferior al valor de su último lance para la subasta actual. La licitación tiene que ser inferior al último lance más la diferencia mínima total (850.444,02 COP)",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T21:00:09.4097634Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Announcement",
+   "eventHistorySubTypeCode": "Logs_Search_AuctionStart",
+   "registerDate": "2026-11-20T21:00:00.158837Z",
+   "description": "Subasta en Curso",
+   "ipAddress": "",
+   "userCode": ""
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:56.2244747Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:55.4914549Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:55.4024549Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:54.8434521Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:54.7484548Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:54.644453Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:54.5394543Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:54.3804534Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:54.3684533Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:54.3194565Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:54.3064528Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:54.0854524Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:53.9404539Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:53.4503205Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Bid",
+   "eventHistorySubTypeCode": "Logs_Search_StartBidding",
+   "registerDate": "2026-11-20T20:59:53.3199674Z",
+   "description": "Comenzar Lances",
+   "ipAddress": "203.0.113.8",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogout",
+   "registerDate": "2026-11-20T20:59:49.315908Z",
+   "description": "Usuario desconectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+   "registerDate": "2026-11-20T20:59:16.2689232Z",
+   "description": "Usuario conectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogout",
+   "registerDate": "2026-11-20T20:57:51.9326014Z",
+   "description": "Usuario desconectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+   "registerDate": "2026-11-20T20:54:47.8360582Z",
+   "description": "Usuario conectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Announcement",
+   "eventHistorySubTypeCode": "Logs_Search_NewUser",
+   "registerDate": "2026-11-20T20:54:47.8160606Z",
+   "description": "Crear nuevo usuario",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogout",
+   "registerDate": "2026-11-20T20:45:10.5663058Z",
+   "description": "Usuario desconectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+   "registerDate": "2026-11-20T20:44:55.9470275Z",
+   "description": "Usuario conectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+   "registerDate": "2026-11-20T20:44:41.0789625Z",
+   "description": "Usuario conectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogout",
+   "registerDate": "2026-11-20T20:41:45.2048463Z",
+   "description": "Usuario desconectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+   "registerDate": "2026-11-20T20:41:16.046971Z",
+   "description": "Usuario conectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+   "registerDate": "2026-11-20T20:41:14.520787Z",
+   "description": "Usuario conectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+   "registerDate": "2026-11-20T20:39:23.9668347Z",
+   "description": "Usuario conectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Announcement",
+   "eventHistorySubTypeCode": "Logs_Search_NewUser",
+   "registerDate": "2026-11-20T20:39:23.946832Z",
+   "description": "Crear nuevo usuario",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Conversation",
+   "eventHistorySubTypeCode": "Logs_Search_MessengerLogin",
+   "registerDate": "2026-11-20T20:38:55.9713011Z",
+   "description": "Usuario conectado",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  },
+  {
+   "eventHistoryTypeCode": "Logs_Search_Announcement",
+   "eventHistorySubTypeCode": "Logs_Search_NewUser",
+   "registerDate": "2026-11-20T20:38:55.9522102Z",
+   "description": "Crear nuevo usuario",
+   "ipAddress": "203.0.113.7",
+   "userCode": "900000001"
+  }
+ ]
+}
