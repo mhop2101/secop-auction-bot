@@ -308,6 +308,28 @@ Booleans accept `true/yes/on/1` and `false/no/off/0`. Integers are base-10. Stri
 verbatim. `confirm_live` is the exception to the whole mechanism: `--set confirm_live=true` still
 leaves it false, because only `--yes-i-mean-it` sets it.
 
+## Web app
+
+The same bot, driven from a logged-in web page on the server: paste the auction page and the
+token, set the opening and the offsets, preflight, probe SECOP's clock, arm, and read the result.
+It runs these same commands underneath and adds nothing to how a bid is fired.
+
+```bash
+bash deploy/install.sh          # on the server: certificate, login, systemd service
+```
+
+See [docs/webapp.md](docs/webapp.md).
+
+### `record` — read SECOP's result (no row)
+
+```bash
+.venv/bin/python -m secop_firstbid record --config run.json [--host-address 203.0.113.7] [--out record.json]
+```
+
+Reads the bid list and the whole event log and prints who holds the accepted bid and when SECOP
+processed your bids. With `--host-address`, it counts this host's bids apart from your company's
+bids from other addresses. Three kinds of `GET`; nothing is written.
+
 ## Exit codes
 
 | Code | Name | When |

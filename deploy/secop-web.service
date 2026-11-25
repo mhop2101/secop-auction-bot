@@ -1,0 +1,29 @@
+# systemd unit for the SECOP first-bid web app. Installed by deploy/install.sh, which
+# replaces @APP_DIR@ and @APP_USER@.
+[Unit]
+Description=SECOP first-bid web app
+After=network-online.target chrony.service
+Wants=network-online.target
+
+[Service]
+User=@APP_USER@
+WorkingDirectory=@APP_DIR@
+ExecStart=@APP_DIR@/.venv/bin/python -W ignore -m secop_web serve \
+    --data webjobs \
+    --users secrets/webapp_users.json \
+    --port 443 --http-port 80 \
+    --cert secrets/tls/cert.pem --key secrets/tls/key.pem
+# Ports 80 and 443 without running as root.
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=yes
+UMask=0077
+Restart=on-failure
+RestartSec=3
+# Restarting or stopping the web app must never kill a bot that is mid-run: only the
+# web server process is signalled; a launched bot keeps going and the restarted app
+# picks it up again by its pid.
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

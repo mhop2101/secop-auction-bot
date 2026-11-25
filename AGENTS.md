@@ -148,7 +148,17 @@ number. The server rejects on its own and we log why.
 | `logging_setup.py` | Run dir, JSON events, redaction, single writer thread |
 | `capture.py` | `capture.har` and `timeline.jsonl` writers |
 | `report.py` | `summary.json` and the human summary |
-| `__main__.py` | CLI: `parse-page`, `preflight`, `clock-probe`, `plan`, `run` |
+| `__main__.py` | CLI: `parse-page`, `preflight`, `clock-probe`, `record`, `plan`, `run` |
+
+The web app is a separate package, `secop_web/` ([docs/webapp.md](docs/webapp.md)). It runs the
+bot's commands as subprocesses and never imports the fire path:
+
+| Module | Responsibility |
+|---|---|
+| `secop_web/jobs.py` | Jobs on disk, form → bot config, the arm schedule, subprocesses |
+| `secop_web/auth.py` | The one login, sessions, CSRF, login throttle |
+| `secop_web/views.py` | Server-rendered HTML; the token is never rendered |
+| `secop_web/server.py` | Routes, HTTPS, the HTTP→HTTPS redirect |
 
 ## Conventions
 
@@ -188,7 +198,12 @@ describe the SPA's flattened model, not the server's JSON.
 - **Do not commit** `*.har`, `beforebid.html`, `bid.html`, or `runs/`. They carry credentials, session
   state, and your bid values. They are in `.gitignore`; keep them there.
 - **Do not make a live `CreateBid` easier to fire.** `confirm_live` defaults false and is set by an
-  explicit `--yes-i-mean-it`. That friction is deliberate.
+  explicit `--yes-i-mean-it`. That friction is deliberate. In the web app the equivalent is the
+  Arm form: the confirmation box *and* the bid value retyped (`Runner.arm`). Keep both.
+- **Do not let the web app kill a running bot on restart.** `deploy/secop-web.service` has
+  `KillMode=process` for that reason.
+- **Do not render a token in a page or a log.** The web app stores it mode 0600 in the job and shows
+  only what `inspect_token` decodes.
 - **Do not add a retry.** A retry at the fire instant lands at an unknown time and writes another
   buyer-visible audit row.
 - **Do not "fix" `apply_clock_offset` to default true.** SECOP has more than one clock. The HTTP

@@ -35,6 +35,7 @@ other three.
 | [safety.md](safety.md) | Audit-log footprint, credentials, and the pre-run checklist |
 | [api.md](api.md) | The SECOP II e-auction HTTP surface, marked by provenance |
 | [logging.md](logging.md) | Run directory layout, event and summary schemas, redaction rules |
+| [webapp.md](webapp.md) | The logged-in web page on the server: jobs, arming, results, deploying |
 | [open-questions.md](open-questions.md) | The unknowns the design rests on, what 2026-11-20 showed, and how to settle each |
 
 The specification is [`../SECOP_FIRSTBID_PLAN.md`](../SECOP_FIRSTBID_PLAN.md) and the audit that
