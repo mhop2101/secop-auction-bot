@@ -1,5 +1,5 @@
-"""Command-line entry point: the four subcommands of plan §13 plus ``clock-probe``, and the
-one place a :class:`Failure` becomes a process exit code.
+"""Command-line entry point: the four subcommands of plan §13 plus ``clock-probe`` and
+``record``, and the one place a :class:`Failure` becomes a process exit code.
 
 ``parse-page`` and ``plan`` never open a socket. ``plan`` is the only rehearsal in this app
 with no server-side footprint at all — it builds the schedule, the payload and the audit
@@ -1180,6 +1180,51 @@ def _read_secop_record(
         return None
 
 
+def cmd_record(args: argparse.Namespace) -> int:
+    """Read SECOP's record of the auction now. Three ``GET``s; writes no row."""
+    cfg = load(args.config, parse_set_overrides(getattr(args, "set_pairs", None)))
+    ref = page_parse.parse_auction_page(cfg.auction_page_html_path, cfg.auction_id)
+    info = inspect_token(cfg.jwt)
+    reference = parse_fire_time(cfg.fire_time)
+
+    logger = RunLogger(cfg)
+    client = HttpClient(cfg, ref, requests.cookies.RequestsCookieJar(), logger)
+    try:
+        detail = None  # type: Optional[AuctionDetail]
+        try:
+            detail = fetch_detail(client, ref, logger)
+        except SecopError:
+            detail = None
+        source = "fire_time"
+        if detail is not None and detail.start_date is not None:
+            start = detail.start_date
+            if start.tzinfo is not None and start.utcoffset() is not None:
+                reference = start.astimezone(timezone.utc)
+                source = "startDate"
+        record = records.read_result(
+            ref,
+            client,
+            info.company_code,
+            reference,
+            logger,
+            reference_source=source,
+            host_address=args.host_address,
+        )
+    finally:
+        client.close()
+        logger.close()
+
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as handle:
+            json.dump(record, handle, indent=1, default=str)
+    _out("--- SECOP RECORD ---")
+    _out("company        %s" % (info.company_code or "?"))
+    _out("measured from  %s (%s)" % (reference.isoformat(), source))
+    for index, line in enumerate(report._secop_record_lines({"secop_record": record})):
+        _out("%s %s" % ("SECOP says    " if index == 0 else "              ", line))
+    return EXIT_NETWORK if record["unread"] else EXIT_OK
+
+
 def cmd_clock_probe(args: argparse.Namespace) -> int:
     """Place SECOP's log clock now. Writes exactly one buyer-visible start-bidding row."""
     cfg, notes = _load_config(args)
@@ -1540,6 +1585,20 @@ def build_parser() -> argparse.ArgumentParser:
         )
     )
     probe.set_defaults(handler=cmd_clock_probe)
+
+    record = with_config(
+        subparsers.add_parser(
+            "record",
+            help="read SECOP's bid list and event log for the auction now; no row written",
+        )
+    )
+    record.add_argument(
+        "--host-address",
+        default=None,
+        help="this host's public address as SECOP records it, to count its bids apart",
+    )
+    record.add_argument("--out", default=None, help="also write the record as JSON here")
+    record.set_defaults(handler=cmd_record)
 
     run = with_config(
         subparsers.add_parser("run", help="the full pipeline; arms only with the flag")

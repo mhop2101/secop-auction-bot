@@ -1225,3 +1225,33 @@ def test_a_record_that_could_not_be_read_is_read_again(
     assert record["host_address"] == "203.0.113.7"
     assert "reading again" in capsys.readouterr().out
     assert sum(1 for url in wire.urls if "GetSupplierBids" in url) == 1
+
+
+def test_record_reads_secops_record_and_writes_no_row(
+    write_config,
+    monkeypatch,
+    tmp_path,
+    capsys,
+    auction_simple,
+    bids_total_info,
+    validatebid_responses,
+) -> None:
+    wire = _fake_transport(
+        monkeypatch, auction_simple, bids_total_info, validatebid_responses
+    )
+    wire.supplier_bids = [
+        {"bidId": 1, "company": "900000002", "date": "2026-11-20T21:00:00.0443673Z",
+         "totalValueStr": "0.000000000000", "isValid": True}
+    ]
+    out = tmp_path / "record.json"
+    code = cli.main(
+        ["record", "--config", write_config(), "--host-address", "203.0.113.7",
+         "--out", str(out)]
+    )
+
+    assert code == cli.EXIT_OK
+    assert not any(("Audit" in url) or ("Bid" in url and "Get" not in url) for url in wire.urls)
+    record = json.loads(out.read_text(encoding="utf-8"))
+    assert record["host_address"] == "203.0.113.7"
+    assert record["bids"][0]["company"] == "900000002"
+    assert "--- SECOP RECORD ---" in capsys.readouterr().out
