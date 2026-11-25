@@ -329,3 +329,23 @@ The recommended sequence on a **throwaway** auction where `myLastBid > 0`:
 Every one of those runs writes rows into a buyer-visible audit log under your public IP and company
 code. "Throwaway auction" is not a figure of speech — see
 [evidence.md](evidence.md#the-audit-log--why-dry-run-is-not-free).
+
+## Q19 — Does SECOP drop a request whose client stopped waiting?
+
+**Assumed:** no — on 2026-11-20 SECOP processed bids 4 to 35 s after this app had given up on
+them at 10 s.
+
+**2026-11-23 says otherwise, or says something else:** seven bids left one host within 0.7 ms
+of their slots, on connections a keep-alive had used 15 s earlier, and each ended in a 10 s
+read timeout. SECOP's event log holds no row from that host's address for any of them, while
+it logged 47 bids typed by hand under the same company from a browser, the first 22 s after
+the opening. Two explanations fit and the data cannot separate them: SECOP abandons a request
+once its client closes the connection, or requests from one login are serialised and these
+were lost behind the manual ones (the same account was bidding by hand at the same time).
+
+**What changed:** `read_timeout_ms` is 60 s, so this app no longer closes the connection first,
+and the record read reports this host's bids apart from everyone else's (`host_bid_rows`).
+
+**Settles it:** one run with the long timeout and an account nobody uses by hand during the
+auction. If this host's bids then appear in the log, one of the two was the cause; a second run
+with manual bidding on the same account tells which.

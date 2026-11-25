@@ -1184,3 +1184,44 @@ def test_clock_probe_prints_the_fallback_line(
     assert len(line) == 1
     value = int(line[0].rsplit(":", 1)[1])
     assert 900 <= value <= 1000
+
+
+def test_a_record_that_could_not_be_read_is_read_again(
+    write_config,
+    monkeypatch,
+    tmp_path,
+    capsys,
+    auction_simple,
+    bids_total_info,
+    validatebid_responses,
+) -> None:
+    """SECOP answered none of the three reads for over a minute on 2026-11-23."""
+    wire = _fake_transport(
+        monkeypatch, auction_simple, bids_total_info, validatebid_responses
+    )
+    real = requests.Session.request
+    failures = {"left": 1}
+
+    def flaky(self: Any, method: str, url: str, **kwargs: Any) -> Any:
+        if "GetSupplierBids" in url and failures["left"]:
+            failures["left"] -= 1
+            raise requests.exceptions.ReadTimeout("read timed out")
+        return real(self, method, url, **kwargs)
+
+    monkeypatch.setattr(requests.Session, "request", flaky)
+    config = write_config(
+        fire_time=_fire_time(2),
+        n_direct=0,
+        n_validate_only=1,
+        gate_mode="off",
+        clock_probe="none",
+        secop_record_retry_s=0,
+    )
+    assert cli.main(["run", "--config", config]) == cli.EXIT_OK
+
+    record = _run_summary(tmp_path)["secop_record"]
+    assert record["attempt"] == 2
+    assert record["unread"] == []
+    assert record["host_address"] == "203.0.113.7"
+    assert "reading again" in capsys.readouterr().out
+    assert sum(1 for url in wire.urls if "GetSupplierBids" in url) == 1

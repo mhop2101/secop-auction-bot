@@ -253,7 +253,9 @@ Every key, its type, its default. The reasoning behind each is in
 |---|---|---|---|
 | `do_start_audit` | bool | `true` | POST `SetStartBiddingAudit` **once per run** — one row, however many bids — `start_audit_lead_ms` before the first release, on its own connection. It is also the clock sample. |
 | `read_secop_record` | bool | `true` | After the schedule, read SECOP's own bid list and event log and put who won, and when your bids were processed, in the summary. Three `GET`s; writes no row. |
-| `secop_record_delay_s` | int | `30` | Wait this long after the last release before that read, so the server has finished processing what was sent. |
+| `secop_record_delay_s` | int | `90` | Wait this long after the last release before that read, so the server has finished processing what was sent. |
+| `secop_record_attempts` | int | `4` | Read again while any of the three reads fails, up to this many times. |
+| `secop_record_retry_s` | int | `60` | Seconds between those reads. |
 | `do_submit_audit` | bool | `false` | POST `SetSubmitBiddingAudit` after a win. Never observed on the wire; warns if enabled. |
 
 **Safety**
@@ -268,8 +270,8 @@ Every key, its type, its default. The reasoning behind each is in
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
-| `connect_timeout_ms` | int | `3000` | TCP+TLS connect timeout. Without one a hung socket outlives the auction window. |
-| `read_timeout_ms` | int | `5000` | Response timeout. Max observed bid response is 1633 ms. |
+| `connect_timeout_ms` | int | `8000` | TCP+TLS connect timeout. Without one a hung socket outlives the auction window. |
+| `read_timeout_ms` | int | `60000` | How long each bid waits for SECOP's answer. In the live auctions SECOP took 4–35 s to process a bid, and on 2026-11-23 none of the bids given up on after 10 s was processed. Nothing is retried after a timeout. |
 | `user_agent` | str | captured Chrome UA | A library default UA is believed to draw a 403. |
 | `run_root` | str | `runs` | Root for per-run directories. |
 

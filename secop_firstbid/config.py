@@ -13,8 +13,15 @@ wherever it is set true.
 
 The keys past the plan's §4 set — ``keepalive_offsets_ms``, ``keepalive_timeout_ms``,
 ``clock_window_ms``, ``clock_max_width_ms``, ``clock_fallback_shift_ms``,
-``read_secop_record`` and ``secop_record_delay_s`` — exist because of what the first live
-runs showed, and ``docs/configuration.md`` says what each one is for.
+``read_secop_record``, ``secop_record_delay_s``, ``secop_record_attempts`` and
+``secop_record_retry_s`` — exist because of what the first live runs showed, and
+``docs/configuration.md`` says what each one is for.
+
+``connect_timeout_ms`` and ``read_timeout_ms`` default to 8 s and 60 s, not the plan's 3 s
+and 5 s. In the live auctions SECOP took 4 to 35 s to process a bid, and on 2026-11-23
+none of the seven bids that this app gave up on after 10 s was ever processed. Whether
+closing the connection is what lost them is not established; waiting costs nothing,
+because no retry follows a timeout and every thread has its own connection.
 """
 
 from __future__ import annotations
@@ -49,6 +56,11 @@ KEEPALIVE_SETTLE_MS = 2000
 # Below this the stamp cannot reliably be read back before the last moment T may still be
 # moved: one POST and up to two reads, each bounded by connect + read timeouts.
 START_AUDIT_LEAD_FOR_CLOCK_MS = 20000
+
+# The seconds before an opening in which SECOP refused or stalled a third to half of the
+# requests sent to it on 2026-11-20 (the failures began about 6 s out). A start audit
+# sent inside this window may never be written.
+OPENING_RUSH_MS = 10000
 
 # A live reading and the clock-probe fallback further apart than this are reported: one of
 # them is wrong, or SECOP's clock moved between the two.
@@ -105,10 +117,12 @@ class Config:
     do_start_audit: bool = True
     do_submit_audit: bool = False
     read_secop_record: bool = True
-    secop_record_delay_s: int = 30
+    secop_record_delay_s: int = 90
+    secop_record_attempts: int = 4
+    secop_record_retry_s: int = 60
     dry_run: bool = False
-    connect_timeout_ms: int = 3000
-    read_timeout_ms: int = 5000
+    connect_timeout_ms: int = 8000
+    read_timeout_ms: int = 60000
     auth_safety_margin_s: int = 300
     user_agent: str = DEFAULT_USER_AGENT
     rtt_samples: int = 10
@@ -151,6 +165,7 @@ _NON_NEGATIVE_INTS = (
     "clock_window_ms",
     "clock_max_width_ms",
     "secop_record_delay_s",
+    "secop_record_retry_s",
     "fire_time_mismatch_warn_s",
     "auth_safety_margin_s",
     "rtt_samples",
@@ -160,6 +175,7 @@ _POSITIVE_INTS = (
     "connect_timeout_ms",
     "read_timeout_ms",
     "keepalive_timeout_ms",
+    "secop_record_attempts",
     "max_arm_ahead_s",
 )
 
@@ -551,7 +567,7 @@ def validate(cfg: Config, now: Optional[datetime] = None) -> List[str]:
             % footprint["submissions"]
         )
 
-    opening_rush_ms = cfg.connect_timeout_ms + cfg.read_timeout_ms
+    opening_rush_ms = OPENING_RUSH_MS
     if cfg.do_start_audit and cfg.start_audit_lead_ms < opening_rush_ms:
         warnings.append(
             "start_audit_lead_ms=%d is inside the last %d ms before the first release. The "

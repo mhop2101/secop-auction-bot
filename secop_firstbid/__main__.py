@@ -1113,12 +1113,17 @@ def _read_secop_record(
     fire: FireOutcome,
     logger: RunLogger,
     side_clients: List[HttpClient],
+    host_address: Optional[str] = None,
 ) -> Optional[Dict[str, Any]]:
     """Read back what SECOP recorded, once it has had time to process what was sent.
 
     Not before ``secop_record_delay_s`` after the last release: on 2026-11-20 the server
     was still working through this app's bids 35 seconds after the opening, and a read
     taken the moment the sockets gave up would have found none of them.
+
+    Read again, up to ``secop_record_attempts`` times ``secop_record_retry_s`` apart,
+    while any of the three reads fails. On 2026-11-23 SECOP answered none of them for over
+    a minute after the opening. Every attempt is three ``GET``s and writes no row.
 
     Skipped for a run that sent nothing. An interrupt during the wait costs the record,
     not the run's summary.
@@ -1144,9 +1149,32 @@ def _read_secop_record(
             if start.tzinfo is not None and start.utcoffset() is not None:
                 reference = start.astimezone(timezone.utc)
                 source = "startDate"
-        return records.read_result(
-            ref, client, info.company_code, reference, logger, reference_source=source
-        )
+        record = None  # type: Optional[Dict[str, Any]]
+        attempts = max(1, cfg.secop_record_attempts)
+        for attempt in range(1, attempts + 1):
+            record = records.read_result(
+                ref,
+                client,
+                info.company_code,
+                reference,
+                logger,
+                reference_source=source,
+                host_address=host_address,
+            )
+            record["attempt"] = attempt
+            if not record["unread"] or attempt == attempts:
+                break
+            _out(
+                "SECOP did not answer %s; reading again in %d s (attempt %d of %d)"
+                % (
+                    ", ".join(record["unread"]),
+                    cfg.secop_record_retry_s,
+                    attempt + 1,
+                    attempts,
+                )
+            )
+            time.sleep(cfg.secop_record_retry_s)
+        return record
     except KeyboardInterrupt:
         _warn("interrupted while waiting to read SECOP's record; the summary goes without it")
         return None
@@ -1340,6 +1368,9 @@ def _execute_run(
         audit_client = HttpClient(cfg, ref, jar, logger)
         side_clients.append(audit_client)
         anchor = armed
+        # Filled by the audit's read-back with the public address SECOP recorded for this
+        # host, which is what later tells this host's bids from anyone else's.
+        audit_seen = {}  # type: Dict[str, Any]
         audit = StartAudit(
             cfg,
             armed,
@@ -1347,7 +1378,14 @@ def _execute_run(
             audit_client,
             logger,
             on_sent=lambda outcome: records.clock_from_start_audit(
-                cfg, anchor, ref, audit_client, outcome, info.company_code, logger
+                cfg,
+                anchor,
+                ref,
+                audit_client,
+                outcome,
+                info.company_code,
+                logger,
+                seen=audit_seen,
             ),
         )
         audit.start()
@@ -1373,7 +1411,16 @@ def _execute_run(
             + _AUDIT_JOIN_MARGIN_S
         )
         secop_record = _read_secop_record(
-            cfg, ref, jar, armed, detail, info, fire, logger, side_clients
+            cfg,
+            ref,
+            jar,
+            armed,
+            detail,
+            info,
+            fire,
+            logger,
+            side_clients,
+            host_address=audit_seen.get("address"),
         )
         finish(None)
         return _outcome_exit_code(fire)

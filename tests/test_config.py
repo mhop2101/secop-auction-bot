@@ -94,8 +94,10 @@ def test_defaults_match_section_4() -> None:
     assert cfg.stop_on_success is True
     assert cfg.do_start_audit is True
     assert cfg.dry_run is False
-    assert cfg.connect_timeout_ms == 3000
-    assert cfg.read_timeout_ms == 5000
+    # 8 s and 60 s since the live auctions: SECOP took seconds to answer, and bids given up
+    # on after 10 s were never processed on 2026-11-23.
+    assert cfg.connect_timeout_ms == 8000
+    assert cfg.read_timeout_ms == 60000
     assert cfg.auth_safety_margin_s == 300
     assert cfg.user_agent == DEFAULT_USER_AGENT
     assert cfg.rtt_samples == 10

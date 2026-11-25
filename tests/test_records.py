@@ -541,3 +541,133 @@ def test_every_read_is_a_get_on_a_route_this_module_names(ref, logger) -> None:
 
     assert len(client.paths) == 3
     assert not hasattr(client, "post_json") and not hasattr(client, "post_empty")
+
+
+# ------------------------------------------- this host's bids against everyone else's
+
+
+HOST = "203.0.113.7"
+
+
+def bid_row(stamp: datetime, address: str, company: str = OWN_COMPANY) -> Dict[str, Any]:
+    return {
+        "eventHistoryTypeCode": "Logs_Search_Bid",
+        "eventHistorySubTypeCode": records.SUBTYPE_NEW_BID,
+        "registerDate": stamp.strftime("%Y-%m-%dT%H:%M:%S.%f") + "3Z",
+        "description": "Error cuando presentado el lance.",
+        "ipAddress": address,
+        "userCode": company,
+    }
+
+
+def test_the_audit_row_tells_the_record_which_address_is_this_host(cfg, ref, logger) -> None:
+    sent = datetime(2026, 11, 20, 20, 59, 0, 100000, tzinfo=timezone.utc)
+    stamp = sent + timedelta(milliseconds=20) - timedelta(milliseconds=945)
+    client = ScriptedClient({"GetEventLogs": (200, log_body([start_row(stamp)]))})
+    seen = {}  # type: Dict[str, Any]
+
+    records.clock_from_start_audit(
+        cfg, anchor(), ref, client, answered(sent, 40.0), OWN_COMPANY, logger,
+        sleep=no_sleep, seen=seen,
+    )
+
+    assert seen == {"address": HOST}
+
+
+def test_two_candidate_rows_name_no_address(cfg, ref, logger) -> None:
+    """With two rows of the company in the window, neither is certainly this run's."""
+    sent = datetime(2026, 11, 20, 20, 59, 0, tzinfo=timezone.utc)
+    rows = [
+        start_row(sent - timedelta(milliseconds=925)),
+        dict(start_row(sent - timedelta(milliseconds=725)), ipAddress="198.51.100.4"),
+    ]
+    client = ScriptedClient({"GetEventLogs": (200, log_body(rows))})
+    seen = {}  # type: Dict[str, Any]
+
+    records.clock_from_start_audit(
+        cfg, anchor(), ref, client, answered(sent, 40.0), OWN_COMPANY, logger,
+        sleep=no_sleep, seen=seen,
+    )
+
+    assert seen == {}
+
+
+def test_bids_from_this_host_are_counted_apart_from_bids_typed_by_hand(ref, logger) -> None:
+    """The third live auction: every processed bid came from a person's browser.
+
+    Counted by company alone, the record said 47 of "your" bids were processed; counted
+    by address it says none of this host's was.
+    """
+    rows = [bid_row(START_DATE + timedelta(seconds=22 + i), "198.51.100.4") for i in range(3)]
+    client = ScriptedClient(
+        {
+            "GetBidsTotalInfo": (200, {"myLastBid": 0, "lastBid": 0}),
+            "GetSupplierBids": (200, []),
+            "GetEventLogs": (200, log_body(rows)),
+        }
+    )
+
+    record = records.read_result(
+        ref, client, OWN_COMPANY, START_DATE, logger, host_address=HOST
+    )
+
+    assert record["own_bid_rows"]["count"] == 3
+    assert record["host_bid_rows"]["count"] == 0
+    assert record["other_address_bid_rows"] == 3
+
+
+def test_without_an_address_the_split_is_not_claimed(ref, logger) -> None:
+    client = ScriptedClient(
+        {
+            "GetBidsTotalInfo": (200, {"myLastBid": 0, "lastBid": 0}),
+            "GetSupplierBids": (200, []),
+            "GetEventLogs": (200, log_body([bid_row(START_DATE, HOST)])),
+        }
+    )
+
+    record = records.read_result(ref, client, OWN_COMPANY, START_DATE, logger)
+
+    assert record["host_bid_rows"] is None
+    assert record["other_address_bid_rows"] is None
+
+
+class PagedClient(ScriptedClient):
+    """Answers the event log one page at a time, as the DataTables endpoint does."""
+
+    def __init__(self, rows: List[Dict[str, Any]], fail_page: Optional[int] = None) -> None:
+        super().__init__({})
+        self.rows = rows
+        self.fail_page = fail_page
+
+    def get(self, path: str, **kwargs: Any) -> HttpOutcome:
+        self.paths.append(path)
+        start = int(path.split("iDisplayStart=")[1].split("&")[0])
+        page = start // records.EVENT_LOG_PAGE
+        stamp = time.monotonic_ns()
+        if page == self.fail_page:
+            return HttpOutcome(None, None, None, {}, stamp, stamp, 0.0,
+                               exception=ConnectionError("refused"))
+        body = {
+            "recordsTotal": len(self.rows),
+            "data": self.rows[start:start + records.EVENT_LOG_PAGE],
+        }
+        return HttpOutcome(200, body, "", {}, stamp, stamp, 0.0)
+
+
+def test_the_whole_log_is_read_page_by_page() -> None:
+    rows = [bid_row(START_DATE + timedelta(seconds=i), HOST) for i in range(230)]
+    client = PagedClient(rows)
+
+    read, total, complete = records.read_event_log_all(client, AuctionRef(auction_id="a"))
+
+    assert (len(read), total, complete) == (230, 230, True)
+    assert len(client.paths) == 3
+
+
+def test_a_failed_page_keeps_what_was_read_and_says_it_is_incomplete() -> None:
+    rows = [bid_row(START_DATE + timedelta(seconds=i), HOST) for i in range(230)]
+    client = PagedClient(rows, fail_page=1)
+
+    read, total, complete = records.read_event_log_all(client, AuctionRef(auction_id="a"))
+
+    assert (len(read), total, complete) == (100, 230, False)

@@ -51,6 +51,10 @@ SUBTYPE_AUCTION_START = "Logs_Search_AuctionStart"
 
 EVENT_LOG_PAGE = 100
 
+# The whole log is read page by page up to this many pages. The third live auction held
+# 110 rows, so one page of 100 lost the oldest ten.
+EVENT_LOG_MAX_PAGES = 10
+
 # The row is written while the audit request is handled, but nothing says the log read
 # sees it at once. One read shortly after the answer, one more a little later, then stop.
 _READBACK_WAITS_S = (0.3, 2.0)
@@ -117,19 +121,72 @@ def read_event_log(
     return (rows, outcome)
 
 
+def read_event_log_all(
+    client: HttpClient,
+    ref: AuctionRef,
+    *,
+    max_pages: int = EVENT_LOG_MAX_PAGES,
+    thread_id: str = THREAD_ID
+) -> Tuple[List[Dict[str, Any]], Optional[int], bool]:
+    """Every row of the event log, page by page: ``(rows, records_total, complete)``.
+
+    ``complete`` is false when a page failed or ``max_pages`` ran out before
+    ``recordsTotal``; the rows read so far are still returned. ``records_total`` is
+    ``None`` when not even the first page was answered.
+    """
+    rows = []  # type: List[Dict[str, Any]]
+    total = None  # type: Optional[int]
+    for page in range(max(1, max_pages)):
+        outcome = client.get(
+            endpoints.get_event_logs(
+                ref.auction_id, ref.lang, page * EVENT_LOG_PAGE, EVENT_LOG_PAGE
+            ),
+            stage=STAGE,
+            thread_id=thread_id,
+            role=ROLE,
+        )
+        if outcome.status != 200 or not isinstance(outcome.body, Mapping):
+            return (rows, total, False)
+        reported = outcome.body.get("recordsTotal")
+        if isinstance(reported, int) and not isinstance(reported, bool):
+            total = reported
+        data = outcome.body.get("data")
+        page_rows = (
+            [dict(row) for row in data if isinstance(row, Mapping)]
+            if isinstance(data, list)
+            else []
+        )
+        rows.extend(page_rows)
+        if not page_rows or total is None or len(rows) >= total:
+            return (rows, total, True)
+    return (rows, total, total is not None and len(rows) >= total)
+
+
 def rows_of(
-    rows: List[Dict[str, Any]], subtype: str, company_code: Optional[str] = None
+    rows: List[Dict[str, Any]],
+    subtype: str,
+    company_code: Optional[str] = None,
+    address: Optional[str] = None,
+    exclude_address: Optional[str] = None,
 ) -> List[Tuple[datetime, Dict[str, Any]]]:
     """Rows of one subtype — one company's when ``company_code`` is given — oldest first.
 
     ``userCode`` on a row is the *company* code from the token, not a user: every account
-    of one company writes rows that cannot be told apart here.
+    of one company writes rows that cannot be told apart by it. ``ipAddress`` can: it is
+    the public address the request came from, so ``address`` keeps only this host's rows
+    and ``exclude_address`` only everyone else's — a person bidding by hand under the same
+    company, for one.
     """
     out = []  # type: List[Tuple[datetime, Dict[str, Any]]]
     for row in rows:
         if row.get("eventHistorySubTypeCode") != subtype:
             continue
         if company_code is not None and str(row.get("userCode") or "") != company_code:
+            continue
+        row_address = str(row.get("ipAddress") or "")
+        if address is not None and row_address != address:
+            continue
+        if exclude_address is not None and row_address == exclude_address:
             continue
         stamp = parse_instant(row.get("registerDate"))
         if stamp is None:
@@ -159,6 +216,7 @@ def clock_from_start_audit(
     company_code: Optional[str],
     logger: RunLogger,
     sleep: Any = time.sleep,
+    seen: Optional[Dict[str, Any]] = None,
 ) -> ClockEstimate:
     """Place SECOP's log clock against this host's, from the start audit just sent.
 
@@ -175,6 +233,11 @@ def clock_from_start_audit(
     No estimate, and the reason logged, when the audit was not answered with a 200 (a
     timed-out request does not bracket its stamp), when the token names no company, or
     when no row turns up in two reads.
+
+    ``seen``, when given, receives ``address``: the public address SECOP recorded on the
+    row, but only when exactly one candidate was found — the row is then certainly this
+    run's, and its address is how :func:`read_result` later tells this host's bids from a
+    person's bidding by hand under the same company.
     """
     empty = clock.stamp_estimate([], armed.armed_at_wall, armed.armed_at_wall)
 
@@ -203,19 +266,24 @@ def clock_from_start_audit(
     t_recv_wall = armed.wall_at(outcome.t_recv_mono_ns)
     window = timedelta(milliseconds=cfg.clock_window_ms)
 
-    candidates = []  # type: List[datetime]
+    matched = []  # type: List[Tuple[datetime, Dict[str, Any]]]
     reads = 0
     for wait_s in _READBACK_WAITS_S:
         sleep(wait_s)
         rows, _exchange = read_event_log(client, ref, thread_id="clock-readback")
         reads += 1
-        candidates = [
-            stamp
-            for stamp, _row in rows_of(rows, SUBTYPE_START_BIDDING, company_code)
+        matched = [
+            (stamp, row)
+            for stamp, row in rows_of(rows, SUBTYPE_START_BIDDING, company_code)
             if t_send_wall - window <= stamp <= t_recv_wall + window
         ]
-        if candidates:
+        if matched:
             break
+    candidates = [stamp for stamp, _row in matched]
+    if seen is not None and len(matched) == 1:
+        address = matched[0][1].get("ipAddress")
+        if isinstance(address, str) and address:
+            seen["address"] = address
 
     if not candidates:
         return unusable(
@@ -286,7 +354,12 @@ def _own_rows_block(
     company_code: Optional[str],
     reference: Optional[datetime],
 ) -> Dict[str, Any]:
-    own = rows_of(rows, subtype, company_code) if company_code else []
+    return _rows_block(rows_of(rows, subtype, company_code) if company_code else [], reference)
+
+
+def _rows_block(
+    own: List[Tuple[datetime, Dict[str, Any]]], reference: Optional[datetime]
+) -> Dict[str, Any]:
     block = {
         "count": len(own),
         "first": None,
@@ -318,18 +391,26 @@ def read_result(
     reference: Optional[datetime],
     logger: RunLogger,
     reference_source: str = "startDate",
+    host_address: Optional[str] = None,
 ) -> Dict[str, Any]:
     """What SECOP recorded about the auction and about this company, after the bids.
 
-    Three reads: the totals, the bid list, and one page of the event log. ``reference`` is
+    Three reads: the totals, the bid list, and the event log, page by page. ``reference`` is
     the instant the ``*_after_start_ms`` figures are measured from — the auction's
     ``startDate`` when it has a zone, otherwise ``T`` — and both it and every stamp are on
     SECOP's clock, so those figures need no clock correction.
 
     ``own_bid_rows`` are the company's ``Logs_Search_NewBid`` rows: one per bid the server
     processed, rejected ones included, each carrying the time it was processed. A bid that
-    never reached the server leaves none. The page holds the newest
-    :data:`EVENT_LOG_PAGE` rows; ``event_log_truncated`` says when the log had more.
+    never reached the server leaves none. ``event_log_truncated`` says when not every row
+    could be read.
+
+    ``host_address`` is the public address SECOP recorded on this run's own start audit
+    (see :func:`clock_from_start_audit`). With it, ``host_bid_rows`` counts only the bids
+    that came from this host and ``other_address_bid_rows`` the company's bids from
+    anywhere else. On 2026-11-23 that split was the whole story: 47 of the company's bids
+    were processed, every one from a person's browser, and none of the 7 this host sent.
+    Without it the two cannot be told apart and ``host_bid_rows`` is ``None``.
 
     Never raises. Each read that failed is named in ``unread`` and its block left empty.
     """
@@ -342,6 +423,9 @@ def read_result(
     record["last_bid"] = None
     record["bids"] = []
     record["own_bid_rows"] = _own_rows_block([], SUBTYPE_NEW_BID, None, reference)
+    record["host_address"] = host_address
+    record["host_bid_rows"] = None
+    record["other_address_bid_rows"] = None
     record["own_start_rows"] = 0
     record["auction_start_row_after_start_ms"] = None
     record["event_log_rows"] = 0
@@ -379,14 +463,21 @@ def read_result(
     else:
         unread.append("GetSupplierBids (the token names no company code)")
 
-    rows, exchange = read_event_log(client, ref)
-    if exchange.status == 200 and isinstance(exchange.body, Mapping):
+    rows, total, complete = read_event_log_all(client, ref)
+    if total is not None:
         record["event_log_rows"] = len(rows)
-        total = exchange.body.get("recordsTotal")
-        record["event_log_truncated"] = isinstance(total, int) and total > len(rows)
+        record["event_log_truncated"] = not complete
         record["own_bid_rows"] = _own_rows_block(
             rows, SUBTYPE_NEW_BID, company_code, reference
         )
+        if host_address and company_code:
+            record["host_bid_rows"] = _rows_block(
+                rows_of(rows, SUBTYPE_NEW_BID, company_code, address=host_address),
+                reference,
+            )
+            record["other_address_bid_rows"] = len(
+                rows_of(rows, SUBTYPE_NEW_BID, company_code, exclude_address=host_address)
+            )
         record["own_start_rows"] = (
             len(rows_of(rows, SUBTYPE_START_BIDDING, company_code)) if company_code else 0
         )
@@ -407,6 +498,7 @@ def read_result(
 
 
 __all__ = [
+    "EVENT_LOG_MAX_PAGES",
     "EVENT_LOG_PAGE",
     "STAGE",
     "SUBTYPE_AUCTION_START",
@@ -415,6 +507,7 @@ __all__ = [
     "clock_from_start_audit",
     "parse_instant",
     "read_event_log",
+    "read_event_log_all",
     "read_result",
     "rows_of",
 ]

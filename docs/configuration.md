@@ -102,7 +102,9 @@ footprint, while looking like a spread schedule.
 |---|---|---|
 | `do_start_audit` | `true` | POST `SetStartBiddingAudit` **once per run** — one row, however many bids. The browser sends one per click; the app sent one per thread until 2026-11-20, when audits sharing their bid's connection held bids back by seconds. Whether the server needs the row at all before a bid is unknown ([Q15](open-questions.md)); bids whose own audit had failed were still processed. It is also the run's clock sample. |
 | `read_secop_record` | `true` | After the schedule, read `GetBidsTotalInfo`, `GetSupplierBids` and one page of `GetEventLogs`, and put what they say in `summary.secop_record`: every accepted bid with its company and server timestamp, and how many of your bids the server processed and when. Three `GET`s, no row written. Skipped when the run sent nothing. |
-| `secop_record_delay_s` | `30` | How long after the last release that read waits. On 2026-11-20 the server was still processing this app's bids 35 s after the opening; a read taken at once finds none of them. Ctrl-C during the wait skips the read and keeps the summary. |
+| `secop_record_delay_s` | `90` | How long after the last release that read waits. On 2026-11-20 the server was still processing this app's bids 35 s after the opening; a read taken at once finds none of them. Ctrl-C during the wait skips the read and keeps the summary. |
+| `secop_record_attempts` | `4` | How many times the read is tried while any of its three requests fails. On 2026-11-23 SECOP answered none of them for over a minute after the opening. |
+| `secop_record_retry_s` | `60` | Seconds between those attempts. |
 | `do_submit_audit` | `false` | POST `SetSubmitBiddingAudit` after a win. Defaults off: that endpoint was **never observed**, and the SPA's inverted function naming suggests it is the session-open audit, not the post-submit one. |
 
 ## Safety
@@ -117,8 +119,8 @@ footprint, while looking like a spread schedule.
 
 | Key | Default | Meaning |
 |---|---|---|
-| `connect_timeout_ms` | `3000` | TCP+TLS connect timeout. Without one, `requests` blocks forever and a single hung socket in a barrier-synchronised burst hangs the run past the auction window. |
-| `read_timeout_ms` | `5000` | Response timeout. Max observed bid response is 1633 ms. |
+| `connect_timeout_ms` | `8000` | TCP+TLS connect timeout. Without one, `requests` blocks forever and a single hung socket in a barrier-synchronised burst hangs the run past the auction window. |
+| `read_timeout_ms` | `60000` | How long a bid waits for SECOP's answer. The plan's 5 s was set from a capture with no load; in the live auctions SECOP took 4–35 s to process a bid, and on 2026-11-23 none of the seven bids given up on after 10 s was ever processed. Whether closing the connection lost them is unknown ([Q19](open-questions.md#q19--does-secop-drop-a-request-whose-client-stopped-waiting)); waiting longer costs nothing, because no retry follows. |
 | `user_agent` | captured Chrome UA | A library default UA is believed to draw a 403. |
 
 **Network errors are never retried.** A retry at the fire instant lands at an unknown time and writes

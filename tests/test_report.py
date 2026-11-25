@@ -962,3 +962,29 @@ def test_summary_is_json_serializable_without_a_default_hook(
     assert restored["total_value"] == "1.000000"
     assert restored["fire_time"] == "2026-07-28T21:00:00+00:00"
     assert restored["winner"]["bid_id"] == 12345
+
+
+def test_the_digest_says_when_none_of_this_hosts_bids_was_processed(ref: AuctionRef) -> None:
+    record = dict(
+        SECOP_RECORD,
+        host_address="203.0.113.7",
+        host_bid_rows={"count": 0},
+        other_address_bid_rows=47,
+    )
+    text = human_summary(summarize(make_cfg(), ref, secop_record=record))
+
+    assert "NONE of this host's bids was processed" in text
+    assert "47 bid(s) of your company came from other addresses" in text
+    assert "of your company's bids were processed" not in text
+
+
+def test_the_digest_counts_this_hosts_processed_bids(ref: AuctionRef) -> None:
+    record = dict(
+        SECOP_RECORD,
+        host_address="203.0.113.7",
+        host_bid_rows={"count": 2, "first_after_start_ms": 3900.0, "last_after_start_ms": 4100.0},
+        other_address_bid_rows=0,
+    )
+    text = human_summary(summarize(make_cfg(), ref, secop_record=record))
+
+    assert "2 bid(s) from this host were processed, the first +3.90 s" in text

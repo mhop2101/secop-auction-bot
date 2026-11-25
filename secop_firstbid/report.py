@@ -649,24 +649,52 @@ def _secop_record_lines(summary: Mapping[str, Any]) -> List[str]:
     else:
         lines.append("no accepted bid in the bid list")
 
-    own = record.get("own_bid_rows")
-    own = own if isinstance(own, _AbcMapping) else {}
-    count = int(own.get("count") or 0)
-    if count:
-        lines.append(
-            "%d of your company's bids were processed, the first %s and the last %s "
-            "from startDate%s"
-            % (
-                count,
-                _seconds(own.get("first_after_start_ms")),
-                _seconds(own.get("last_after_start_ms")),
-                " (the log had more rows than were read)"
-                if record.get("event_log_truncated")
-                else "",
+    truncated = (
+        " (the log could not be read in full)" if record.get("event_log_truncated") else ""
+    )
+    host = record.get("host_bid_rows")
+    if isinstance(host, _AbcMapping):
+        count = int(host.get("count") or 0)
+        if count:
+            lines.append(
+                "%d bid(s) from this host were processed, the first %s and the last %s "
+                "from startDate%s"
+                % (
+                    count,
+                    _seconds(host.get("first_after_start_ms")),
+                    _seconds(host.get("last_after_start_ms")),
+                    truncated,
+                )
             )
-        )
+        else:
+            lines.append(
+                "NONE of this host's bids was processed: the event log holds no bid from "
+                "%s%s" % (record.get("host_address"), truncated)
+            )
+        others = int(record.get("other_address_bid_rows") or 0)
+        if others:
+            lines.append(
+                "%d bid(s) of your company came from other addresses (someone bidding "
+                "by hand, or another host)" % others
+            )
     else:
-        lines.append("the event log holds no processed bid of your company")
+        own = record.get("own_bid_rows")
+        own = own if isinstance(own, _AbcMapping) else {}
+        count = int(own.get("count") or 0)
+        if count:
+            lines.append(
+                "%d of your company's bids were processed, the first %s and the last %s "
+                "from startDate%s — from any address: this host's own could not be told "
+                "apart"
+                % (
+                    count,
+                    _seconds(own.get("first_after_start_ms")),
+                    _seconds(own.get("last_after_start_ms")),
+                    truncated,
+                )
+            )
+        else:
+            lines.append("the event log holds no processed bid of your company")
 
     unread = record.get("unread") or []
     if unread:
