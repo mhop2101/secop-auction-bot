@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "secop-firstbid"
+version = "1.0.0"
+description = "Scheduled first-bid submitter for SECOP II electronic reverse auctions"
+requires-python = ">=3.9"
+dependencies = ["requests>=2.28"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+secop-firstbid = "secop_firstbid.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["secop_firstbid*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# The package is used from the source tree, not installed. Without this, `secop_firstbid`
+# resolves only because `python -m pytest` puts the working directory on sys.path; a bare
+# `pytest` from the same directory does not.
+pythonpath = ["."]
+filterwarnings = [
+    "error::DeprecationWarning:secop_firstbid.*",
+    # macOS system Python links LibreSSL; urllib3 warns on import. Environmental and
+    # unrelated to this package — silenced so a real warning is visible in the output.
+    "ignore:.*OpenSSL 1.1.1.*:Warning",
+]

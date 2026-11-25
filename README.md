@@ -134,6 +134,29 @@ payload, warns if `fire_time` disagrees with the server's `startDate` by more th
 elapsed-time quantiles, an **advisory** `lead_ms`, and the `Date`-header offset midpoint with its
 residual width. Advisory is literal: nothing measured here moves `T`.
 
+The `Date` header is **not** the clock the auction opens on. It comes from SECOP's web front end and
+tracks real time; the application stamps its event log and its bids with another clock, which read
+0.9–1.0 s behind on 2026-11-20. `preflight` cannot see that one — it sends no request the application
+stamps. `clock-probe` can.
+
+### `clock-probe` — place SECOP's log clock (one audit row, no bid)
+
+```bash
+.venv/bin/python -m secop_firstbid clock-probe --config run.json
+```
+
+Takes `--config` and `--set`. Sends **one** `SetStartBiddingAudit`, reads the event log back, finds
+the row that request wrote and compares the server's timestamp on it with the instants the request
+left and was answered. The result is the offset of SECOP's log clock from this host's, as an interval
+no wider than that one round trip.
+
+It writes **one buyer-visible row** ("Comenzar Lances") under your public IP and company code, and
+sends no bid. `fire_time` must still be valid, so it works in the hour before the auction. Exit `6`
+if the row could not be read back.
+
+A `run` makes the same measurement from its own start audit, at no extra row, and reports it in the
+summary. It moves `T` by it only with `apply_clock_offset=true`.
+
 ### `run` — the full pipeline
 
 ```bash
@@ -200,7 +223,9 @@ Every key, its type, its default. The reasoning behind each is in
 |---|---|---|---|
 | `lead_ms` | int | `0` | Fire this early to offset transit. Set deliberately; never auto-derived. |
 | `validate_lead_ms` | int | `0` | How early V threads start their `ValidateBid`. |
-| `start_audit_lead_ms` | int | `1500` | How far before each thread's release its `SetStartBiddingAudit` goes out, so the audit's round trip is spent inside the countdown instead of in front of the bid. Warns below the 614 ms median response. |
+| `start_audit_lead_ms` | int | `60000` | How far before the **first** release the run's one `SetStartBiddingAudit` goes out, on a connection no bid uses. Early enough to be ahead of the opening rush and to be read back as a clock sample. Warns when it is inside the last connect+read timeout before the release. |
+| `keepalive_offsets_ms` | list[int] | `[-45000,-30000,-15000]` | Instants, relative to the first release, at which every bid connection sends one cheap read so it is open and warm at `T`. All negative. `[]` turns it off. Refused if the last one could still be in flight at the release. |
+| `keepalive_timeout_ms` | int | `3000` | Connect **and** read timeout of a keep-alive — far below a bid's, so it is over before the bid needs the connection. |
 | `max_arm_ahead_s` | int | `3600` | Abort if `fire_time` is further ahead than this — a long-armed run outlives the token. |
 | `fire_time_mismatch_warn_s` | int | `2` | Warn, never override, if `fire_time` differs from the server's `startDate` by more. |
 | `rtt_samples` | int | `10` | Preflight RTT samples. Below 10 warns; observed range spans 90–1138 ms. |
@@ -210,7 +235,10 @@ Every key, its type, its default. The reasoning behind each is in
 | Key | Type | Default | Meaning |
 |---|---|---|---|
 | `clock_probe` | str | `date_header` | `date_header` \| `signalr` \| `both` \| `none`. Which probes to **record**. `signalr` is not implemented and raises. |
-| `apply_clock_offset` | bool | `false` | Shift `T` by the measured offset. **Leave off.** Warns if enabled. |
+| `apply_clock_offset` | bool | `false` | Move `T` onto the clock SECOP stamps its log with, measured from this run's start audit. Off by default; warns if enabled. Declines, loudly, when the row was not read back in time, the interval is wider than `clock_max_width_ms`, or the offset is beyond `clock_window_ms`. Needs `do_start_audit`. |
+| `clock_window_ms` | int | `5000` | How far from the audit a start-bidding row of your company may be stamped and still count as a candidate for "this run's row"; also the largest offset that may move `T`. |
+| `clock_max_width_ms` | int | `500` | The widest feasible interval that may move `T`. |
+| `clock_fallback_shift_ms` | int or null | `null` | Shift `T` by this `clock-probe` reading when the run's own reading is declined. `clock-probe` prints the value. A usable live reading wins; a gap over 100 ms is reported. |
 
 **State gate**
 
@@ -223,7 +251,9 @@ Every key, its type, its default. The reasoning behind each is in
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
-| `do_start_audit` | bool | `true` | POST `SetStartBiddingAudit` once per thread, as the browser does (8/8). **Doubles the footprint.** Sent `start_audit_lead_ms` before the thread's release, never in front of the bid. |
+| `do_start_audit` | bool | `true` | POST `SetStartBiddingAudit` **once per run** — one row, however many bids — `start_audit_lead_ms` before the first release, on its own connection. It is also the clock sample. |
+| `read_secop_record` | bool | `true` | After the schedule, read SECOP's own bid list and event log and put who won, and when your bids were processed, in the summary. Three `GET`s; writes no row. |
+| `secop_record_delay_s` | int | `30` | Wait this long after the last release before that read, so the server has finished processing what was sent. |
 | `do_submit_audit` | bool | `false` | POST `SetSubmitBiddingAudit` after a win. Never observed on the wire; warns if enabled. |
 
 **Safety**
@@ -249,15 +279,18 @@ another audit row.
 ### What validation rejects
 
 `fire_time` missing, naive, in the past or past `max_arm_ahead_s`; a `bid_value` that is unparseable,
-non-string, zero or negative; the ambiguous `1.234` form (write `1234` or `1.2340`); `bid_is_total`
+non-string or negative; the ambiguous `1.234` form (write `1234` or `1.2340`); `bid_is_total`
 true; any enum outside its set; `burst` with `bid_count < 1`, or `bid_count > 1` with `interval_ms < 1`;
 `custom` with no offsets; a schedule with no submitters *and* no probes. Structural errors are
 collected and reported together, because an operator fixing a config one exception at a time is an
 operator who arms late.
 
-It **warns** — and proceeds — on a planned footprint above 10 audited requests, `apply_clock_offset`,
-`dry_run`, `do_submit_audit`, `rtt_samples` below 10, and on `confirm_live` itself. A probe-only run
-and a dry run are both legal.
+It also refuses a `keepalive_offsets_ms` entry at or after the first release, or one close enough to
+it that the keep-alive could still hold a bid's connection when the bid needs it.
+
+It **warns** — and proceeds — on a zero `bid_value`, a planned footprint above 10 audited requests, `apply_clock_offset`,
+a `start_audit_lead_ms` inside the opening rush, `dry_run`, `do_submit_audit`, `rtt_samples` below 10,
+and on `confirm_live` itself. A probe-only run and a dry run are both legal.
 
 ### `--set` overrides
 
@@ -282,8 +315,8 @@ leaves it false, because only `--yes-i-mean-it` sets it.
 | `2` | CONFIG | Invalid config, fire time past or too far, unsupported auction version, no command given. |
 | `3` | PARSE | Page parse failed or was ambiguous; malformed payload. |
 | `4` | AUTH | Token expired, or inside `auth_safety_margin_s`. |
-| `5` | ALL_REJECTED | Bids were sent and every one bounced — validation, duplicate, or an auction state that refuses them. |
-| `6` | NETWORK | Network failure, rate limit, WAF block, clock sync failure. |
+| `5` | ALL_REJECTED | Bids were sent and at least one was answered, and every answer was a bounce — validation, duplicate, or an auction state that refuses them. |
+| `6` | NETWORK | Network failure, rate limit, WAF block, clock sync failure. Includes the run whose every bid timed out — outcome `NO_VERDICT`: nothing was answered, so nothing is known from the run itself. Read the `SECOP says` lines. |
 
 A run that submitted nothing because the state gate stopped it exits with the gate's own reason,
 which for the `STATE_*` failures is `5`.
@@ -330,19 +363,31 @@ submits (two round trips, self-aborting), **P** validates only and never submits
 **once** ahead of `T` rather than inline — it costs a median 135 ms against a 90 ms schedule span, and
 inline it would give D threads two round trips and erase the distinction from V.
 
-**One thread and one pre-warmed connection per planned shot.** The run builds one `HttpClient` per
+**One thread and one warm connection per planned shot.** The run builds one `HttpClient` per
 thread — each with its own single-connection pool, all sharing one cookie jar so the gateway's affinity
-cookies keep the burst on one backend — and `prewarm` opens them all concurrently before the countdown.
+cookies keep the burst on one backend — and `prewarm` opens them all concurrently at arming.
 Nothing is shared on the send path, so a thread blocked on its own response never delays another
 thread's release: schedule spacing is a property of the release instants alone, and shots may be spaced
 as closely as you like without one waiting on the last.
 
-The corollary is that anything a thread sends *for itself* **is** serial with its bid, because they
-share that one connection. That is why `SetStartBiddingAudit` goes out `start_audit_lead_ms` ahead of
-the release instant rather than immediately before the submission — inline it put a full round trip
-(168 ms at the fastest observed, 614 ms median) between the scheduled instant and the bid actually
-leaving the socket, which is more than the entire span of a tight schedule. It is also why V threads
-have `validate_lead_ms`: their `ValidateBid` occupies the same connection.
+A connection opened at arming does not survive a long countdown — on 2026-11-20 the ones warmed minutes
+earlier were gone by `T`. `keep_warm` therefore re-reads every bid connection at `keepalive_offsets_ms`
+before the first release, so each is re-opened *before* the seconds in which SECOP starts refusing
+connections rather than by the bid itself.
+
+The corollary of one connection per thread is that anything a thread sends *for itself* **is** serial
+with its bid. So the fire threads send nothing but bids. `SetStartBiddingAudit` used to ride on each
+bid's connection, first inline and then a fixed lead ahead; on 2026-11-20 audits that hung for their
+whole timeout took their thread's bid with them, and 5 to 16 bids per run left more than half a second
+late. It is now **one request per run, on a connection of its own**. A keep-alive does use a bid's
+connection, which is why it carries a short timeout of its own and why the config is refused if the
+last one could still be in flight at the release. V threads have `validate_lead_ms` for the same
+reason: their `ValidateBid` occupies the connection their `CreateBid` needs.
+
+**The run reads the result from SECOP, not from the socket.** A bid that times out has not been
+rejected — the server processed every one of ours that left the machine, seconds later. After the
+schedule the run reads the bid list and the event log back and prints who holds the accepted bid and
+when your own bids were handled.
 
 Below the network floor, spacing stops being real. A round trip to `subastas.secop.gov.co` is ~70 ms
 warm, so offsets closer together than the run-to-run jitter (a few ms) will not arrive in the order
@@ -376,7 +421,7 @@ Three firing modes: `single` (one wave at `T`), `burst` (`bid_count` waves start
 | [docs/safety.md](docs/safety.md) | Footprint, credentials, and what a run costs you. |
 | [docs/api.md](docs/api.md) | The SECOP II e-auction HTTP surface. |
 | [docs/logging.md](docs/logging.md) | Run directory layout, event and summary schemas, redaction rules. |
-| [docs/open-questions.md](docs/open-questions.md) | Fifteen unknowns the design depends on. |
+| [docs/open-questions.md](docs/open-questions.md) | The unknowns the design depends on, and what the live auctions of 2026-11-20 showed. |
 | [AGENTS.md](AGENTS.md) | Conventions and invariants for anyone changing the code. |
 
 The specification is `SECOP_FIRSTBID_PLAN.md`; `PLAN_AUDIT.md` is the audit that corrected it. The

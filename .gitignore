@@ -1,0 +1,46 @@
+# Credential-bearing artifacts. The HAR carries a live-shaped JWT in plaintext as the
+# `token=` query parameter on all 281 SignalR URLs, together with the operator's name,
+# user/company codes and LoginGUID. Never commit it.
+*.har
+
+# Saved auction pages are session-scoped and identify the bidder. Anchored to the
+# repository root: the same names anywhere else would also match, and the parser tests
+# need their scrubbed stand-ins (tests/fixtures/opportunity_page.html and
+# tests/fixtures/launch_page.html) to be committed or a fresh checkout cannot run them.
+/beforebid.html
+/bid.html
+
+# Run artifacts contain full request/response bodies and your company's bid values.
+runs/
+
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# SSH keys for the deployment host.
+*.pem
+
+# Live JWTs and the configs that embed them.
+secrets/
+
+# Archived run directories carry the same request/response bodies and bid values as runs/.
+history/*/data/runs-*/
+
+# Local configs with live tokens, one-off offset lists, macOS litter.
+/bid_*.json
+/fiscalia_*.json
+/offsets.json
+.DS_Store
+
+# Auction archives and saved auction pages identify the companies, people and hosts involved,
+# and this repository is public. The write-ups and the raw data stay on the operator's machine.
+history/
+reference/
+
+# Web app state on the server: jobs carry tokens and configs.
+webjobs/
